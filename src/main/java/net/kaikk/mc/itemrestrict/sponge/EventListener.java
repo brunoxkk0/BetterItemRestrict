@@ -1,7 +1,5 @@
 package net.kaikk.mc.itemrestrict.sponge;
 
-import java.util.Optional;
-
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -15,6 +13,8 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
+
+import net.kaikk.mc.itemrestrict.ChunkIdentifier;
 
 public class EventListener {
 	private BetterItemRestrict instance;
@@ -30,27 +30,17 @@ public class EventListener {
 	
 	@Listener(beforeModifications = true, order=Order.FIRST)
 	public void onBlockPlace(ChangeBlockEvent.Place event) {
-		Optional<Player> optPlayer = event.getCause().first(Player.class);
-		if (!optPlayer.isPresent()) {
-			return;
-		}
-		
-		Player player = optPlayer.get();
+		Player player = event.getCause().first(Player.class).orElse(null);
 		if (instance.check(player, event.getTransactions().get(0).getFinal().getState())) {
 			event.getTransactions().get(0).setValid(false);
 			event.setCancelled(true);
-			instance.inventoryCheck(player);
 		}
 	}
 	
 	@Listener(beforeModifications = true, order=Order.FIRST)
 	public void onPlayerInteract(InteractEvent event) {
-		Optional<Player> optPlayer = event.getCause().first(Player.class);
-		if (!optPlayer.isPresent()) {
-			return;
-		}
-		Player player = optPlayer.get();
-		if (instance.checkHands(player)) {
+		Player player = event.getCause().first(Player.class).orElse(null);
+		if (player != null && instance.checkHands(player)) {
 			event.setCancelled(true);
 			instance.inventoryCheck(player);
 		}
@@ -66,21 +56,19 @@ public class EventListener {
 	
 	@Listener(beforeModifications = true, order=Order.FIRST)
 	public void onItemClick(ClickInventoryEvent event) {
-		Optional<Player> optPlayer = event.getCause().first(Player.class);
-		if (!optPlayer.isPresent()) {
-			return;
-		}
-		
-		Player player = optPlayer.get();
+		Player player = event.getCause().first(Player.class).orElse(null);
 		if (instance.ownershipCheck(player, event.getCursorTransaction().getOriginal().createStack()) || instance.ownershipCheck(player, event.getCursorTransaction().getFinal().createStack())) {
 			event.getCursorTransaction().setValid(false);
 			event.setCancelled(true);
-			instance.inventoryCheck(player);
 		}
 	}
 	
-	@Listener(order=Order.FIRST)
+	@Listener(order=Order.POST)
 	public void onChunkLoad(LoadChunkEvent event) {
-		
+		final ChunkIdentifier chunkId = new ChunkIdentifier(event.getTargetChunk().getWorld().getUniqueId(), event.getTargetChunk().getPosition().getX(), event.getTargetChunk().getPosition().getZ());
+		if (!instance.checkedChunks.contains(chunkId)) {
+			instance.chunksToCheck.add(chunkId);
+		}
 	}
+	
 }

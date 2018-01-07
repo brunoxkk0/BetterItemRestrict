@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.kaikk.mc.itemrestrict.ChunkIdentifier;
 import net.kaikk.mc.kaiscommons.bukkit.CommonBukkitUtils;
 
 public class BetterItemRestrict extends JavaPlugin {
@@ -210,7 +211,7 @@ public class BetterItemRestrict extends JavaPlugin {
 		
 		final ItemStack[] inv = player.getInventory().getContents();
 		for (int i = 0; i < inv.length; i++) {
-			if (this.ownershipCheck(player, inv[i]) && ((!player.hasPermission("betteritemrestrict.bypass."+inv[i].getType()) || (player.isOp() && !player.isPermissionSet("betteritemrestrict.bypass."+inv[i].getType()))))) {
+			if (this.ownershipCheck(player, inv[i])) {
 				this.getLogger().info("Removing "+inv[i]+" i:"+i+" from "+player.getName());
 				player.getInventory().setItem(i, null);
 			

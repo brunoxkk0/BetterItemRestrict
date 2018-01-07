@@ -31,7 +31,7 @@ public class RestrictedItem {
 
 	@Override
 	public String toString() {
-		return "RestrictedItem "+type+(dv!=null ? ":"+dv : "");
+		return "RestrictedItem "+type.getName()+(dv!=null ? ":"+dv : "");
 	}
 
 	@Override

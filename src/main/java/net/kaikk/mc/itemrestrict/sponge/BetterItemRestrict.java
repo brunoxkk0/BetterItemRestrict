@@ -1,5 +1,11 @@
 package net.kaikk.mc.itemrestrict.sponge;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
@@ -9,6 +15,7 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.item.ItemTypes;
@@ -16,17 +23,23 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.world.BlockChangeFlag;
+import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.World;
 
+import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 
+import net.kaikk.mc.itemrestrict.ChunkIdentifier;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.spongepowered.api.text.format.TextStyles;
 
-@Plugin(id=PluginInfo.id, name = PluginInfo.name, version = PluginInfo.version, description = PluginInfo.description, dependencies = @Dependency(id="kaiscommons"))
+@Plugin(id=PluginInfo.id, name = PluginInfo.name, version = PluginInfo.version, description = PluginInfo.description, dependencies = @Dependency(id="kaiscommons"), authors = {PluginInfo.author})
 public class BetterItemRestrict {
 	private static BetterItemRestrict instance;
 	private Config config;
@@ -38,14 +51,16 @@ public class BetterItemRestrict {
 	@Inject
 	private Logger logger;
 	
+	@Inject
+	private PluginContainer container;
+	
+	public Set<ChunkIdentifier> checkedChunks;
+	public Deque<ChunkIdentifier> chunksToCheck;
+	
 	public void load() throws Exception {
 		this.config = new Config(this);
-		
-		Sponge.getScheduler().createTaskBuilder().execute(() -> {
-			for (Player p : Sponge.getServer().getOnlinePlayers()) {
-				this.inventoryCheck(p);
-			}
-		}).delayTicks(100).intervalTicks(10).submit(this);
+		this.checkedChunks = new HashSet<>();
+		this.chunksToCheck = new ArrayDeque<>();
 	}
 
 	@Listener
@@ -59,6 +74,45 @@ public class BetterItemRestrict {
 		
 		// Register command
 		Sponge.getCommandManager().register(this, CommandSpec.builder().description(Text.of("Banned Items Commands")).permission("betteritemrestrict.list").executor(new BannedItemsCommand(this)).build(), "banneditems");
+
+		Sponge.getScheduler().createTaskBuilder().execute(() -> {
+			for (Player p : Sponge.getServer().getOnlinePlayers()) {
+				this.inventoryCheck(p);
+			}
+		}).delayTicks(100).intervalTicks(10).submit(this);
+		
+		Sponge.getScheduler().createTaskBuilder().execute(() -> {
+			final ChunkIdentifier chunkId = chunksToCheck.poll();
+			if (chunkId != null) {
+				checkedChunks.add(chunkId);
+				
+				final World world = Sponge.getServer().getWorld(chunkId.getWorld()).orElse(null);
+				if (world != null) {
+					final Optional<Chunk> optChunk = world.getChunk(chunkId.getX(), 0, chunkId.getZ());
+					if (optChunk.isPresent()) {
+						final Chunk chunk = optChunk.get();
+						if (chunk.isLoaded()) {
+							final Vector3i chunkMin = chunk.getBlockMin();
+							final Vector3i chunkMax = chunk.getBlockMax();
+							for (int y = chunkMin.getY(); y < chunkMax.getY(); y++) {
+								for (int x = chunkMin.getX(); x < chunkMax.getX(); x++) {
+									for (int z = chunkMin.getZ(); z < chunkMax.getZ(); z++) {
+										final BlockState block = chunk.getBlock(x, y, z);
+										final RestrictedItem ri = this.worldRestricted(block);
+										if (ri != null) {
+											chunk.setBlockType(x, y, z, BlockTypes.AIR, BlockChangeFlag.NONE, this.getCause());
+											log("Removed "+ri.label+" at chunk "+world.getName()+":"+chunkId.getX()+", "+chunkId.getZ());
+											
+										}
+									}
+								}
+							}
+							
+						}
+					}
+				}
+			}
+		}).delayTicks(20L).intervalTicks(1L).submit(this);
 	}
 
 	
@@ -127,6 +181,16 @@ public class BetterItemRestrict {
 	
 		return null;
 	}
+	
+	public RestrictedItem worldRestricted(BlockState block) {
+		for (RestrictedItem ri : config.world.get(block.getType())) {
+			if (ri.isRestricted(block)) {
+				return ri;
+			}
+		}
+		
+		return null;
+	}
 
 	public boolean check(Player player, ItemStack itemStack) {
 		if (itemStack == null || itemStack.getItem() == ItemTypes.NONE) {
@@ -151,7 +215,7 @@ public class BetterItemRestrict {
 			return false;
 		}
 		
-		if (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+block.getType().getId().replace(":", "-"))) {
+		if (player != null && (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+block.getType().getId().replace(":", "-")))) {
 			return false;
 		}
 		
@@ -159,8 +223,11 @@ public class BetterItemRestrict {
 		if (ri==null) {
 			return false;
 		}
-		this.inventoryCheck(player);
-		this.notify(player, ri);
+		
+		if (player != null) {
+			this.inventoryCheck(player);
+			this.notify(player, ri);
+		}
 		return true;
 	}
 	
@@ -252,7 +319,7 @@ public class BetterItemRestrict {
 			return false;
 		}
 		
-		if (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+itemStack.getItem().getId().replace(":", "-"))) {
+		if (player != null && (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+itemStack.getItem().getId().replace(":", "-")))) {
 			return false;
 		}
 		
@@ -260,8 +327,11 @@ public class BetterItemRestrict {
 		if (ri==null) {
 			return false;
 		}
-		this.inventoryCheck(player);
-		this.notify(player, ri);
+		
+		if (player != null) {
+			this.inventoryCheck(player);
+			this.notify(player, ri);
+		}
 		return true;
 	}
 	
@@ -321,5 +391,13 @@ public class BetterItemRestrict {
 
 	PaginationService getPaginationService() {
 		return Sponge.getServiceManager().provide(PaginationService.class).get();
+	}
+
+	public PluginContainer getContainer() {
+		return container;
+	}
+
+	public Cause getCause() {
+		return Cause.source(container).build();
 	}
 }
