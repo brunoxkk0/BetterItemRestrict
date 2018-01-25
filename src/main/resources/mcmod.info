@@ -5,11 +5,13 @@
         "version": "${project.version}",
         "description": "${description}",
         "requiredMods": [
-            "spongeapi@5.1.0-SNAPSHOT",
-            "kaiscommons"
+            "spongeapi",
+            "kaiscommons",
+            "xsapi"
         ],
         "dependencies": [
-            "kaiscommons"
+            "kaiscommons",
+            "xsapi"
         ]
     }
 ]
