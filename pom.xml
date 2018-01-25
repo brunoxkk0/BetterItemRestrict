@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.kaikk.mc</groupId>
 	<artifactId>BetterItemRestrict</artifactId>
-	<version>0.9.10</version>
+	<version>0.9.11</version>
 	<licenses>
 		<license>
 			<name>GPL v3 License</name>
@@ -110,13 +110,19 @@
 		<dependency>
 			<groupId>org.spongepowered</groupId>
 			<artifactId>spongeapi</artifactId>
-			<version>5.0.0</version>
+			<version>7.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kaikk.mc</groupId>
 			<artifactId>KaisCommons</artifactId>
 			<version>0.9.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.kaikk.mc</groupId>
+			<artifactId>XSAPI</artifactId>
+			<version>0.9</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

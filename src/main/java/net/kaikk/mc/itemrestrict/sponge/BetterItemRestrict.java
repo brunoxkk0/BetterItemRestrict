@@ -28,7 +28,6 @@ import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 
@@ -36,6 +35,7 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 
 import net.kaikk.mc.itemrestrict.ChunkIdentifier;
+import net.kaikk.mc.xsapi.sponge.XSAPI;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
@@ -57,6 +57,8 @@ public class BetterItemRestrict {
 	public Set<ChunkIdentifier> checkedChunks;
 	public Deque<ChunkIdentifier> chunksToCheck;
 	
+	protected XSAPI xsapi;
+	
 	public void load() throws Exception {
 		this.config = new Config(this);
 		this.checkedChunks = new HashSet<>();
@@ -67,6 +69,7 @@ public class BetterItemRestrict {
 	public void onServerStart(GameStartedServerEvent event) throws Exception {
 		instance = this;
 		
+		this.xsapi = new XSAPI(container);
 		this.load();
 		
 		// Register listener
@@ -100,7 +103,7 @@ public class BetterItemRestrict {
 										final BlockState block = chunk.getBlock(x, y, z);
 										final RestrictedItem ri = this.worldRestricted(block);
 										if (ri != null) {
-											chunk.setBlockType(x, y, z, BlockTypes.AIR, BlockChangeFlag.NONE, this.getCause());
+											xsapi.setBlockTypeNoFlag(chunk, x, y, z, BlockTypes.AIR);
 											log("Removed "+ri.label+" at chunk "+world.getName()+":"+chunkId.getX()+", "+chunkId.getZ());
 											
 										}
@@ -398,6 +401,6 @@ public class BetterItemRestrict {
 	}
 
 	public Cause getCause() {
-		return Cause.source(container).build();
+		return xsapi.getCause();
 	}
 }

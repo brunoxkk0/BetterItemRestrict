@@ -8,8 +8,6 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
@@ -49,7 +47,7 @@ public class EventListener {
 			InteractBlockEvent blockEvent = (InteractBlockEvent) event;
 			if (blockEvent.getTargetBlock() != BlockSnapshot.NONE && instance.check(player, blockEvent.getTargetBlock().getExtendedState())) {
 				event.setCancelled(true);
-				blockEvent.getTargetBlock().getLocation().get().setBlockType(BlockTypes.AIR, Cause.of(NamedCause.source("BetterItemRestrict")));
+				instance.xsapi.setBlock(blockEvent.getTargetBlock().getLocation().get(), BlockTypes.AIR);
 			}
 		}
 	}
