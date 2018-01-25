@@ -1,16 +1,15 @@
 package net.kaikk.mc.itemrestrict.sponge;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Text.Builder;
 import org.spongepowered.api.text.format.TextColors;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BannedItemsCommand implements CommandExecutor {
 	private BetterItemRestrict instance;
@@ -44,7 +43,7 @@ public class BannedItemsCommand implements CommandExecutor {
 		instance.getPaginationService().builder()
 				.contents(texts)
 				.title(Text.of(TextColors.RED, "Banned Items List"))
-				.sendTo(src);
+				.build().sendTo(src);
 
 
 		return CommandResult.success();
