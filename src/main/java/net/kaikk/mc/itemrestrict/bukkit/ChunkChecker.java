@@ -11,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ChunkChecker extends Thread {
 	final private Chunk chunk;
-	final private BetterItemRestrict instance = BetterItemRestrict.instance();
 	final private int yMax;
 
 	public ChunkChecker(Chunk chunk) {
@@ -43,11 +42,11 @@ public class ChunkChecker extends Thread {
 				@Override
 				public void run() {
 					for (Block block : toBeRemoved) {
-						instance.getLogger().info("Removing "+block.getType()+" at "+ BetterItemRestrict.locationToString(block.getLocation()));
+						BetterItemRestrict.instance.getLogger().info("Removing "+block.getType()+" at "+ BetterItemRestrict.locationToString(block.getLocation()));
 						block.setType(Material.AIR);
 					}
 				}
-			}.runTask(instance);
+			}.runTask(BetterItemRestrict.instance);
 		}
 	}
 }
