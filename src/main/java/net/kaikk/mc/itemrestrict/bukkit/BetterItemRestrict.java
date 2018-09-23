@@ -17,15 +17,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.kaikk.mc.itemrestrict.ChunkIdentifier;
 
 public class BetterItemRestrict extends JavaPlugin {
-	private static BetterItemRestrict instance;
-	private Config config;
+
+	public static BetterItemRestrict instance;
+
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private Set<ChunkIdentifier> checkedChunks = new HashSet<>();
 
 	@Override
 	public void onEnable() {
 		instance = this;
-		config = new Config(this);
+
+		Config.initialize(this);
 
 		this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
@@ -44,14 +46,6 @@ public class BetterItemRestrict extends JavaPlugin {
 				}
 			}
 		}.runTaskTimer(this, 200L, 10L);
-	}
-
-	public Config config() {
-		return config;
-	}
-
-	public static BetterItemRestrict instance() {
-		return instance;
 	}
 
 	public RestrictedItem restricted(Block block) {

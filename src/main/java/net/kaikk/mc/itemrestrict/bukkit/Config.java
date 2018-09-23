@@ -6,86 +6,100 @@ import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 public class Config {
-	private JavaPlugin instance;
 	public static Multimap<Material,RestrictedItem> usage = HashMultimap.create();
 	public static Multimap<Material,RestrictedItem> ownership = HashMultimap.create();
 	public static Multimap<Material,RestrictedItem> world = HashMultimap.create();
-	public static Multimap<Material,RestrictedItem> invs = HashMultimap.create();
 
-	Config(JavaPlugin instance) {
-		this.instance = instance;
 
-		File iresFolder = new File(instance.getDataFolder().getParentFile(), "ItemRestrict");
-		File iresConfigFile = new File(iresFolder, "config.yml");
-		File configFile = new File(instance.getDataFolder(), "config.yml");
+	//Inv Filters
+	public static Map<String,InvFilter> invsFilters = new HashMap<String, InvFilter>();
+
+	public static void initialize(JavaPlugin instance){
+
 		FileConfiguration config = instance.getConfig();
 
-		if (!configFile.exists() && iresConfigFile.exists()) {
+		usage.clear();
+		ownership.clear();
+		world.clear();
+		invsFilters.clear();
 
-			usage.clear();
-			ownership.clear();
-			world.clear();
-			invs.clear();
+		// load config
+		copyAsset(instance, "config.yml");
+		instance.reloadConfig();
 
-			// load config
-			copyAsset(instance, "config.yml");
-			instance.reloadConfig();
+		for(String bannedItem : config.getStringList("Ownership")) {
+			try {
+				RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
+				ownership.put(ri.material, ri);
+			} catch (IllegalArgumentException e) {
+				instance.getLogger().warning(e.getMessage());
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}
 
-			for(String s : config.getStringList("Ownership")) {
+		for(String bannedItem : config.getStringList("Usage")) {
+			try {
+				RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
+				if (!ownership.get(ri.material).contains(ri)) {
+					usage.put(ri.material, ri);
+				}
+			} catch (IllegalArgumentException e) {
+				instance.getLogger().warning(e.getMessage());
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}
+
+
+		for(String bannedItem : config.getStringList("World")) {
+			try {
+				RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
+				world.put(ri.material, ri);
+			} catch (IllegalArgumentException e) {
+				instance.getLogger().warning(e.getMessage());
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}
+
+		int bannedItemsOnInvs = 0;
+		for(String aInvName : config.getStringList("InvFilter")) {
+
+			InvFilter anInvFilter = new InvFilter(aInvName);
+			if (anInvFilter.getIventoryType() == null){
+				BetterItemRestrict.instance.getLogger().info("There is no InvType called \"" + aInvName + "\"... So, it's items will not be loaded on config!" );
+				continue;
+			}
+			invsFilters.put(aInvName,anInvFilter);
+
+			for(String bannedItem : config.getStringList("InvFilter." + aInvName + ".Usage")) {
 				try {
-					RestrictedItem ri = RestrictedItem.deserialize(s);
-					ownership.put(ri.material, ri);
+					RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
+					anInvFilter.getUsageBans().put(ri.material, ri);
+					bannedItemsOnInvs++;
 				} catch (IllegalArgumentException e) {
 					instance.getLogger().warning(e.getMessage());
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 			}
-
-			for(String s : config.getStringList("Usage")) {
-				try {
-					RestrictedItem ri = RestrictedItem.deserialize(s);
-					if (!ownership.get(ri.material).contains(ri)) {
-						usage.put(ri.material, ri);
-					}
-				} catch (IllegalArgumentException e) {
-					instance.getLogger().warning(e.getMessage());
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-
-
-			for(String s : config.getStringList("World")) {
-				try {
-					RestrictedItem ri = RestrictedItem.deserialize(s);
-					world.put(ri.material, ri);
-				} catch (IllegalArgumentException e) {
-					instance.getLogger().warning(e.getMessage());
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-
 
 		}
 
-		instance.getLogger().info("Loaded "+usage.size()+" usage, "+ownership.size()+" ownership, and "+world.size()+" world restrictions.");
+		instance.getLogger().info("Loaded " + usage.size() + " usage, " + ownership.size() + " ownership, and " + world.size() + " world restrictions.");
+		instance.getLogger().info("And " + invsFilters.size() + " invFilters with " + bannedItemsOnInvs + " bannedUsages");
 	}
-
 
 	private void iresImportMaterials(String importName, Multimap<Material,RestrictedItem> map, List<String> list) {
 		for(String s : list) {
@@ -93,7 +107,7 @@ public class Config {
 				RestrictedItem ri = RestrictedItem.fromItemRestrict(s);
 				map.put(ri.material, ri);
 			} catch (Throwable e) {
-				instance.getLogger().warning("Error during ItemRestrict config file import "+importName+": "+s+" - Error: "+e.getMessage());
+				BetterItemRestrict.instance.getLogger().warning("Error during ItemRestrict config file import "+importName+": "+s+" - Error: "+e.getMessage());
 			}
 		}
 	}
@@ -130,7 +144,7 @@ public class Config {
 					}
 				}
 			} catch (Throwable e) {
-				instance.getLogger().warning("Error during ItemRestrict config file import Messages.labels: "+key+" - Error: "+e.getMessage());
+				BetterItemRestrict.instance.getLogger().warning("Error during ItemRestrict config file import Messages.labels: "+key+" - Error: "+e.getMessage());
 			}
 		}
 
@@ -165,7 +179,7 @@ public class Config {
 					}
 				}
 			} catch (Throwable e) {
-				instance.getLogger().warning("Error during ItemRestrict config file import Messages.reasons: "+key+" - Error: "+e.getMessage());
+				BetterItemRestrict.instance.getLogger().warning("Error during ItemRestrict config file import Messages.reasons: "+key+" - Error: "+e.getMessage());
 			}
 		}
 	}
