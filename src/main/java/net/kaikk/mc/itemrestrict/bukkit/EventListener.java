@@ -32,38 +32,38 @@ public class EventListener implements Listener {
 		if (event.getPlayer()==null) {
 			return;
 		}
-		
+
 		if (instance.check(event.getPlayer(), event.getBlock(), event.getItemInHand())) {
 			event.setCancelled(true);
 			event.setBuild(false);
 			instance.inventoryCheck(event.getPlayer());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
 		if (!(event.getDamager() instanceof HumanEntity)) {
 			return;
 		}
-		
+
 		if (instance.check((HumanEntity) event.getDamager(), ((HumanEntity) event.getDamager()).getItemInHand())) {
 			event.setCancelled(true);
 			instance.inventoryCheck((HumanEntity) event.getDamager());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getPlayer()==null) {
 			return;
 		}
-		
+
 		if (instance.check(event.getPlayer(), event.getItem())) {
 			event.setCancelled(true);
 			instance.inventoryCheck(event.getPlayer());
 			return;
 		}
-		
+
 		if (event.getAction()!=Action.PHYSICAL) {
 			if (instance.check(event.getPlayer(), event.getPlayer().getItemInHand())) {
 				event.setCancelled(true);
@@ -78,7 +78,7 @@ public class EventListener implements Listener {
 			}
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onCraftItem(CraftItemEvent event) {
 		if (instance.ownershipCheck(event.getWhoClicked(), event.getCurrentItem())) {
@@ -86,12 +86,12 @@ public class EventListener implements Listener {
 			instance.inventoryCheck(event.getWhoClicked());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		instance.inventoryCheck((HumanEntity) event.getPlayer());
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
 		if (instance.ownershipCheck(event.getPlayer(), event.getItem().getItemStack())) {
@@ -100,7 +100,7 @@ public class EventListener implements Listener {
 			instance.inventoryCheck(event.getPlayer());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerDropItem(final PlayerDropItemEvent event) {
 		if (instance.ownershipCheck(event.getPlayer(), event.getItemDrop().getItemStack())) {
@@ -114,28 +114,28 @@ public class EventListener implements Listener {
 			instance.inventoryCheck(event.getPlayer());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onInventoryOpen(InventoryOpenEvent event) {
 		if (event.getPlayer() instanceof HumanEntity) {
 			instance.inventoryCheck((HumanEntity) event.getPlayer());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if (event.getPlayer() instanceof HumanEntity) {
 			instance.inventoryCheck((HumanEntity) event.getPlayer());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerItemHeld(PlayerItemHeldEvent event) {
 		if (instance.check(event.getPlayer(), event.getPlayer().getInventory().getItem(event.getNewSlot()))) {
 			instance.inventoryCheck(event.getPlayer());
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChunkLoad(ChunkLoadEvent event) {
 		instance.checkChunk(event.getChunk());

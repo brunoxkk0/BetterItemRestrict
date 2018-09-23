@@ -94,10 +94,10 @@
 			<id>sponge</id>
 			<url>http://repo.spongepowered.org/maven</url>
 		</repository>
-       <repository>
-           <id>net.kaikk.mc</id>
-           <url>http://kaikk.net/mc/repo/</url>
-       </repository>
+		<repository>
+			<id>net.kaikk.mc</id>
+			<url>http://kaikk.net/mc/repo/</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -117,12 +117,6 @@
 			<groupId>net.kaikk.mc</groupId>
 			<artifactId>KaisCommons</artifactId>
 			<version>0.9.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.kaikk.mc</groupId>
-			<artifactId>XSAPI</artifactId>
-			<version>0.9</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

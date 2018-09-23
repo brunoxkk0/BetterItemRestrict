@@ -8,13 +8,12 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.kaikk.mc.kaiscommons.bukkit.CommonBukkitUtils;
 
 public class ChunkChecker extends Thread {
 	final private Chunk chunk;
 	final private BetterItemRestrict instance = BetterItemRestrict.instance();
 	final private int yMax;
-	
+
 	public ChunkChecker(Chunk chunk) {
 		super("BetterItemRestrict-ChunkChecker");
 		this.chunk = chunk;
@@ -34,17 +33,17 @@ public class ChunkChecker extends Thread {
 							break;
 						}
 					}
-					
+
 				}
 			}
 		}
-		
+
 		if (!toBeRemoved.isEmpty()) {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					for (Block block : toBeRemoved) {
-						instance.getLogger().info("Removing "+block.getType()+" at "+CommonBukkitUtils.locationToString(block.getLocation()));
+						instance.getLogger().info("Removing "+block.getType()+" at "+ BetterItemRestrict.locationToString(block.getLocation()));
 						block.setType(Material.AIR);
 					}
 				}

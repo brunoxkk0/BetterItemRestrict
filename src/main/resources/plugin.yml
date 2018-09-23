@@ -2,27 +2,25 @@ name: ${project.artifactId}
 main: ${package}.bukkit.${project.artifactId}
 version: ${project.version}
 author: ${developer}
-depend: [KaisCommons]
 loadbefore: [ItemRestrict]
 
 commands:
-   betteritemrestrict:
-      description: Manage ${project.artifactId}
-      aliases: [ires, bir, bires]
-   banneditems:
-      description: Banned items list
+  betteritemrestrict:
+    description: Manage ${project.artifactId}
+    aliases: [ires, bir, bires]
+  banneditems:
+    description: Banned items list
 
 permissions:
-    betteritemrestrict.manage:
-        description: Manage ${project.artifactId}
-        default: op
-    betteritemrestrict.notify:
-        description: Notifications about players triggering the restriction
-        default: false
-    betteritemrestrict.bypass:
-        description: Bypasses all protections
-        default: false
-    betteritemrestrict.list:
-        description: Allows banneditems command use
-        default: true
-        
+  betteritemrestrict.manage:
+    description: Manage ${project.artifactId}
+    default: op
+  betteritemrestrict.notify:
+    description: Notifications about players triggering the restriction
+    default: false
+  betteritemrestrict.bypass:
+    description: Bypasses all protections
+    default: false
+  betteritemrestrict.list:
+    description: Allows banneditems command use
+    default: true

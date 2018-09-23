@@ -1,6 +1,11 @@
 package net.kaikk.mc.itemrestrict.bukkit;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,51 +18,49 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import net.kaikk.mc.kaiscommons.bukkit.CommonBukkitUtils;
-
 public class Config {
 	private JavaPlugin instance;
 	public Multimap<Material,RestrictedItem> usage = HashMultimap.create(), ownership = HashMultimap.create(), world = HashMultimap.create();
-	
+
 	Config(JavaPlugin instance) {
 		this.instance = instance;
-		
+
 		File iresFolder = new File(instance.getDataFolder().getParentFile(), "ItemRestrict");
 		File iresConfigFile = new File(iresFolder, "config.yml");
 		File configFile = new File(instance.getDataFolder(), "config.yml");
 		FileConfiguration config = instance.getConfig();
-		
+
 		if (!configFile.exists() && iresConfigFile.exists()) {
 			// import existing ires config
 			try {
 				instance.getLogger().info("Importing ItemRestrict config file...");
 				FileConfiguration iresConfig = YamlConfiguration.loadConfiguration(iresConfigFile);
-				
+
 				// import
 				this.iresImportMaterials("Bans.Usage", usage, iresConfig.getStringList("Bans.Usage"));
 				this.iresImportMaterials("Bans.Ownership", ownership, iresConfig.getStringList("Bans.Ownership"));
 				this.iresImportMaterials("Bans.World", world, iresConfig.getStringList("Bans.World"));
 				this.iresProcessMessages(iresConfig);
-				
+
 				// generate config.yml
 				List<String> serializedList = new ArrayList<String>();
 				for (RestrictedItem ri : usage.values()) {
 					serializedList.add(ri.serialize());
 				}
 				config.set("Usage", serializedList);
-				
+
 				serializedList = new ArrayList<String>();
 				for (RestrictedItem ri : ownership.values()) {
 					serializedList.add(ri.serialize());
 				}
 				config.set("Ownership", serializedList);
-				
+
 				serializedList = new ArrayList<String>();
 				for (RestrictedItem ri : world.values()) {
 					serializedList.add(ri.serialize());
 				}
 				config.set("World", serializedList);
-				
+
 				config.options().header("Format: \"MaterialName,DamageValue|ItemLabel|Reason\" - Note: \",DamageValue\" can be omit");
 				config.save(configFile);
 			} catch (Throwable e) {
@@ -65,9 +68,9 @@ public class Config {
 			}
 		} else {
 			// load config
-			CommonBukkitUtils.copyAsset(instance, "config.yml");
+			copyAsset(instance, "config.yml");
 			instance.reloadConfig();
-			
+
 			for(String s : config.getStringList("Ownership")) {
 				try {
 					RestrictedItem ri = RestrictedItem.deserialize(s);
@@ -78,7 +81,7 @@ public class Config {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for(String s : config.getStringList("Usage")) {
 				try {
 					RestrictedItem ri = RestrictedItem.deserialize(s);
@@ -91,8 +94,8 @@ public class Config {
 					e.printStackTrace();
 				}
 			}
-			
-			
+
+
 			for(String s : config.getStringList("World")) {
 				try {
 					RestrictedItem ri = RestrictedItem.deserialize(s);
@@ -103,13 +106,13 @@ public class Config {
 					e.printStackTrace();
 				}
 			}
-			
-			
+
+
 		}
-		
+
 		instance.getLogger().info("Loaded "+usage.size()+" usage, "+ownership.size()+" ownership, and "+world.size()+" world restrictions.");
 	}
-	
+
 
 	private void iresImportMaterials(String importName, Multimap<Material,RestrictedItem> map, List<String> list) {
 		for(String s : list) {
@@ -121,7 +124,7 @@ public class Config {
 			}
 		}
 	}
-	
+
 	private void iresProcessMessages(FileConfiguration iresConfig) {
 		for (String key : iresConfig.getConfigurationSection("Messages.labels").getKeys(false)) {
 			try {
@@ -135,7 +138,7 @@ public class Config {
 						}
 					}
 				}
-				
+
 				ric = ownership.get(tempri.material);
 				if (ric!=null) {
 					for(RestrictedItem ri : ric) {
@@ -144,7 +147,7 @@ public class Config {
 						}
 					}
 				}
-				
+
 				ric = world.get(tempri.material);
 				if (ric!=null) {
 					for(RestrictedItem ri : ric) {
@@ -157,7 +160,7 @@ public class Config {
 				instance.getLogger().warning("Error during ItemRestrict config file import Messages.labels: "+key+" - Error: "+e.getMessage());
 			}
 		}
-		
+
 		for (String key : iresConfig.getConfigurationSection("Messages.reasons").getKeys(false)) {
 			try {
 				String reason = iresConfig.getString("Messages.reasons."+key);
@@ -170,7 +173,7 @@ public class Config {
 						}
 					}
 				}
-				
+
 				ric = ownership.get(tempri.material);
 				if (ric!=null) {
 					for(RestrictedItem ri : ric) {
@@ -179,7 +182,7 @@ public class Config {
 						}
 					}
 				}
-				
+
 				ric = world.get(tempri.material);
 				if (ric!=null) {
 					for(RestrictedItem ri : ric) {
@@ -193,5 +196,26 @@ public class Config {
 			}
 		}
 	}
-	
+
+
+
+
+	public static File copyAsset(JavaPlugin instance, String assetName) {
+		File file = new File(instance.getDataFolder(), assetName);
+		file.getParentFile().mkdirs();
+		if (!file.exists()) {
+			try {
+				Files.copy(getAsset(instance, assetName), file.getAbsoluteFile().toPath(), new CopyOption[]{StandardCopyOption.REPLACE_EXISTING});
+			} catch (IOException var4) {
+				throw new RuntimeException(var4);
+			}
+		}
+
+		return file;
+	}
+
+	public static InputStream getAsset(JavaPlugin instance, String assetName) {
+		return instance.getResource("assets/" + instance.getName().toLowerCase() + "/" + assetName);
+	}
+
 }

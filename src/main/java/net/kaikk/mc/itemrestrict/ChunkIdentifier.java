@@ -7,13 +7,13 @@ import org.bukkit.Chunk;
 public class ChunkIdentifier {
 	final private UUID world;
 	final private int x, z;
-	
+
 	public ChunkIdentifier(UUID world, int x, int z) {
 		this.world = world;
 		this.x = x;
 		this.z = z;
 	}
-	
+
 	public ChunkIdentifier(Chunk chunk) {
 		this.world = chunk.getWorld().getUID();
 		this.x = chunk.getX();
@@ -69,6 +69,6 @@ public class ChunkIdentifier {
 		}
 		return true;
 	}
-	
-	
+
+
 }
