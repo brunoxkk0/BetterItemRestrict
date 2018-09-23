@@ -27,7 +27,7 @@ public class ChunkChecker extends Thread {
 			for (int z = 0; z < 16; z++) {
 				for (int y = 0; y < yMax; y++) {
 					final Block block = chunk.getBlock(x, y, z);
-					for (RestrictedItem ri : instance.config().world.get(block.getType())) {
+					for (RestrictedItem ri : Config.world.get(block.getType())) {
 						if (ri.isRestricted(block)) {
 							toBeRemoved.add(block);
 							break;

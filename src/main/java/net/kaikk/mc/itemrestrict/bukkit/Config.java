@@ -20,7 +20,10 @@ import com.google.common.collect.Multimap;
 
 public class Config {
 	private JavaPlugin instance;
-	public Multimap<Material,RestrictedItem> usage = HashMultimap.create(), ownership = HashMultimap.create(), world = HashMultimap.create();
+	public static Multimap<Material,RestrictedItem> usage = HashMultimap.create();
+	public static Multimap<Material,RestrictedItem> ownership = HashMultimap.create();
+	public static Multimap<Material,RestrictedItem> world = HashMultimap.create();
+	public static Multimap<Material,RestrictedItem> invs = HashMultimap.create();
 
 	Config(JavaPlugin instance) {
 		this.instance = instance;
@@ -31,42 +34,12 @@ public class Config {
 		FileConfiguration config = instance.getConfig();
 
 		if (!configFile.exists() && iresConfigFile.exists()) {
-			// import existing ires config
-			try {
-				instance.getLogger().info("Importing ItemRestrict config file...");
-				FileConfiguration iresConfig = YamlConfiguration.loadConfiguration(iresConfigFile);
 
-				// import
-				this.iresImportMaterials("Bans.Usage", usage, iresConfig.getStringList("Bans.Usage"));
-				this.iresImportMaterials("Bans.Ownership", ownership, iresConfig.getStringList("Bans.Ownership"));
-				this.iresImportMaterials("Bans.World", world, iresConfig.getStringList("Bans.World"));
-				this.iresProcessMessages(iresConfig);
+			usage.clear();
+			ownership.clear();
+			world.clear();
+			invs.clear();
 
-				// generate config.yml
-				List<String> serializedList = new ArrayList<String>();
-				for (RestrictedItem ri : usage.values()) {
-					serializedList.add(ri.serialize());
-				}
-				config.set("Usage", serializedList);
-
-				serializedList = new ArrayList<String>();
-				for (RestrictedItem ri : ownership.values()) {
-					serializedList.add(ri.serialize());
-				}
-				config.set("Ownership", serializedList);
-
-				serializedList = new ArrayList<String>();
-				for (RestrictedItem ri : world.values()) {
-					serializedList.add(ri.serialize());
-				}
-				config.set("World", serializedList);
-
-				config.options().header("Format: \"MaterialName,DamageValue|ItemLabel|Reason\" - Note: \",DamageValue\" can be omit");
-				config.save(configFile);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-		} else {
 			// load config
 			copyAsset(instance, "config.yml");
 			instance.reloadConfig();

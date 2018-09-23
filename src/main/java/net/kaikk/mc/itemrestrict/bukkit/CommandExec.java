@@ -88,7 +88,7 @@ public class CommandExec implements CommandExecutor {
 
 			StringBuilder sb = new StringBuilder();
 			boolean sw = true;
-			for (RestrictedItem ri : instance.config().ownership.values()) {
+			for (RestrictedItem ri : Config.ownership.values()) {
 				if (ri.label != null && !ri.label.isEmpty()) {
 					sb.append(sw ? ChatColor.GREEN : ChatColor.DARK_GREEN);
 					sw = !sw;
@@ -107,7 +107,7 @@ public class CommandExec implements CommandExecutor {
 
 			sb.setLength(0);
 			sw = true;
-			for (RestrictedItem ri : instance.config().usage.values()) {
+			for (RestrictedItem ri : Config.usage.values()) {
 				if (ri.label != null && !ri.label.isEmpty()) {
 					sb.append(sw ? ChatColor.GREEN : ChatColor.DARK_GREEN);
 					sw = !sw;

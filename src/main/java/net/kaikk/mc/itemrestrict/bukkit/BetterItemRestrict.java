@@ -55,12 +55,12 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem restricted(Block block) {
-		for (RestrictedItem ri : config.ownership.get(block.getType())) {
+		for (RestrictedItem ri : Config.ownership.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
 		}
-		for (RestrictedItem ri : config.usage.get(block.getType())) {
+		for (RestrictedItem ri : Config.usage.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
@@ -70,12 +70,12 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem restricted(ItemStack itemStack) {
-		for (RestrictedItem ri : config.ownership.get(itemStack.getType())) {
+		for (RestrictedItem ri : Config.ownership.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
 		}
-		for (RestrictedItem ri : config.usage.get(itemStack.getType())) {
+		for (RestrictedItem ri : Config.usage.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -85,7 +85,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem usageRestricted(Block block) {
-		for (RestrictedItem ri : config.usage.get(block.getType())) {
+		for (RestrictedItem ri : Config.usage.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
@@ -95,7 +95,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem usageRestricted(ItemStack itemStack) {
-		for (RestrictedItem ri : config.usage.get(itemStack.getType())) {
+		for (RestrictedItem ri : Config.usage.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -105,7 +105,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem ownershipRestricted(ItemStack itemStack) {
-		for (RestrictedItem ri : config.ownership.get(itemStack.getType())) {
+		for (RestrictedItem ri : Config.ownership.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -115,7 +115,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public void checkChunk(Chunk chunk) {
-		if (!this.config().world.isEmpty() && this.checkedChunks.add(new ChunkIdentifier(chunk))) {
+		if (!Config.world.isEmpty() && this.checkedChunks.add(new ChunkIdentifier(chunk))) {
 			this.executor.execute(new ChunkChecker(chunk));
 		}
 	}
