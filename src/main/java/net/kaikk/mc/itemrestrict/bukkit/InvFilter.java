@@ -15,9 +15,9 @@ public class InvFilter {
 
     private String invType;
 
-    private Multimap<Material,RestrictedItem> usage = HashMultimap.create();
+    private Map<Material,RestrictedItem> usage = new HashMap<Material, RestrictedItem>();
 
-    public Multimap<Material,RestrictedItem> getUsageBans(){
+    public Map<Material,RestrictedItem> getUsageBans(){
         return this.usage;
     }
 
