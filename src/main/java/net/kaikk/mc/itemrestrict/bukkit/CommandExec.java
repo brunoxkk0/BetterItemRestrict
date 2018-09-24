@@ -30,11 +30,6 @@ public class CommandExec implements CommandExecutor {
 
 		Player player = (Player) sender;
 
-		if (player.getItemInHand() == null){
-			sender.sendMessage("§cVocê precisa estar segurando um item!");
-			return true;
-		}
-
 		sender.sendMessage("§aAbra algum inventário para saber seu nome! (Você tem 3 segundos)");
 
 		new BukkitRunnable() {
