@@ -6,7 +6,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
@@ -17,6 +20,46 @@ public class CommandExec implements CommandExecutor {
 		this.instance = instance;
 	}
 
+
+	public static boolean getInvName(CommandSender sender){
+
+		if ( !(sender instanceof Player)){
+			sender.sendMessage("Apenas jogadores físicos podem usar esse comando.");
+			return true;
+		}
+
+		Player player = (Player) sender;
+
+		if (player.getItemInHand() == null){
+			sender.sendMessage("§cVocê precisa estar segurando um item!");
+			return true;
+		}
+
+		sender.sendMessage("§aAbra algum inventário para saber seu nome! (Você tem 3 segundos)");
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				InventoryView inventoryView = player.getOpenInventory();
+				if (inventoryView == null){
+					sender.sendMessage("§cVocê não possui nenhum inventário aberto no momento....");
+					return;
+				}
+
+				Inventory inventory = inventoryView.getTopInventory();
+				if (inventory == null){
+					sender.sendMessage("§cVocê não possui nenhum inventário aberto no momento....");
+					return;
+				}
+
+				sender.sendMessage("Nome do Inventário: " + inventory.getType().name());
+				BetterItemRestrict.instance.getLogger().info("(" + player.getName() + ") Inventory View " + inventory.getType().name());
+			}
+		}.runTaskLater(BetterItemRestrict.instance,60);
+
+		return true;
+	}
+
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equals("betteritemrestrict")) {
 			if (!sender.hasPermission("betteritemrestrict.manage")) {
@@ -25,11 +68,14 @@ public class CommandExec implements CommandExecutor {
 			}
 
 			if (args.length==0) {
-				sender.sendMessage("Usage: /"+label+" [<reload/addHand>] [exact]");
+				sender.sendMessage("Usage: /"+label+" [<reload/addHand/getInvName>] [exact]");
 				return false;
 			}
 
 			switch(args[0].toLowerCase()) {
+				case "getinvname": {
+					return getInvName(sender);
+				}
 				case "reload": {
 					Bukkit.getPluginManager().disablePlugin(instance);
 					Bukkit.getPluginManager().enablePlugin(instance);
