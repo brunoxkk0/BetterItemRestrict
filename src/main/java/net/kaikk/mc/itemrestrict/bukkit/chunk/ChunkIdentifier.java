@@ -1,4 +1,4 @@
-package net.kaikk.mc.itemrestrict;
+package net.kaikk.mc.itemrestrict.bukkit.chunk;
 
 import java.util.UUID;
 

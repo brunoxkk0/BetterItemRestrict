@@ -1,13 +1,8 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package net.kaikk.mc.itemrestrict.bukkit.restrictdata;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

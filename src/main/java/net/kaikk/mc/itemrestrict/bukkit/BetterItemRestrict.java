@@ -5,6 +5,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import net.kaikk.mc.itemrestrict.bukkit.chunk.ChunkChecker;
+import net.kaikk.mc.itemrestrict.bukkit.commands.CommandExec;
+import net.kaikk.mc.itemrestrict.bukkit.events.EventListener;
+import net.kaikk.mc.itemrestrict.bukkit.events.InventoryListener;
+import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -14,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.kaikk.mc.itemrestrict.ChunkIdentifier;
+import net.kaikk.mc.itemrestrict.bukkit.chunk.ChunkIdentifier;
 
 public class BetterItemRestrict extends JavaPlugin {
 
@@ -30,6 +35,10 @@ public class BetterItemRestrict extends JavaPlugin {
 		Config.initialize(this);
 
 		this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
+
+		if (Bukkit.getPluginManager().isPluginEnabled("ModFixNG")){
+			this.getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
+		}
 
 		// commands executor
 		CommandExec ce = new CommandExec(this);

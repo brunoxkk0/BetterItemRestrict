@@ -5,3 +5,8 @@
 Usage: []
 Ownership: []
 World: []
+InvFilter:
+  appeng.container.implementations.ContainerPatternTerm:
+#  - MaterialName,DamageValue|ItemLabel|Reason
+#  - MaterialName|ItemLabel|Reason
+#  - DIAMOND_SWORD|Diamond Sword|Causes a massive amout of nothing

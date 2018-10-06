@@ -119,6 +119,13 @@
 			<version>0.9.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>modfixng</groupId>
+			<artifactId>ModFixNG</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/ModFixNG.jar</systemPath>
+		</dependency>
 	</dependencies>
 	<properties>
 		<package>net.kaikk.mc.itemrestrict</package>

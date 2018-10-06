@@ -1,8 +1,11 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package net.kaikk.mc.itemrestrict.bukkit.chunk;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
+import net.kaikk.mc.itemrestrict.bukkit.Config;
+import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

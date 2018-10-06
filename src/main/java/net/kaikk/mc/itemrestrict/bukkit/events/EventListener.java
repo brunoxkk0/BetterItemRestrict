@@ -1,9 +1,8 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package net.kaikk.mc.itemrestrict.bukkit.events;
 
+import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,7 +11,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -21,54 +19,14 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class EventListener implements Listener {
 	private BetterItemRestrict instance;
 
-	EventListener(BetterItemRestrict instance) {
+	public EventListener(BetterItemRestrict instance) {
 		this.instance = instance;
 	}
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onInventoryClick(InventoryClickEvent event){
-
-        if (event.getWhoClicked() == null || !(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-        Player player = (Player) event.getWhoClicked();
-
-
-        ItemStack itemStack = event.getCurrentItem();
-        if (itemStack == null){
-            return;
-        }
-
-        InvFilter invFilter =  Config.invsFilters.getOrDefault(event.getInventory().getType().name(),null);
-        //If it is not a registered inv, return;
-        if (invFilter == null){
-            return;
-        }
-
-        RestrictedItem restrictedItem = invFilter.getUsageBans().getOrDefault(itemStack.getType(),null);
-        //If null, then, the item is not banned
-        if (restrictedItem == null){
-            return;
-        }
-
-        //If different, then, the item is not banned
-        if (restrictedItem.dv != null && restrictedItem.dv != itemStack.getDurability()){
-            return;
-        }
-
-        event.setCancelled(true);
-        player.playSound(player.getLocation(), Sound.ANVIL_BREAK, 1F, 1F);
-        player.sendMessage("§cVocê não pode usar esse item nessa interface!");
-        player.closeInventory();
-
-        instance.inventoryCheck(player);
-    }
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBlockPlace(BlockPlaceEvent event) {

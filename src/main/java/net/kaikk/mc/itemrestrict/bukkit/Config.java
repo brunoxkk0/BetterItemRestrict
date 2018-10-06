@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
+import net.kaikk.mc.itemrestrict.bukkit.restrictdata.InvFilter;
+import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,13 +18,13 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 public class Config {
-	public static Multimap<Material,RestrictedItem> usage = HashMultimap.create();
+	public static Multimap<Material, RestrictedItem> usage = HashMultimap.create();
 	public static Multimap<Material,RestrictedItem> ownership = HashMultimap.create();
 	public static Multimap<Material,RestrictedItem> world = HashMultimap.create();
 
 
 	//Inv Filters
-	public static Map<String,InvFilter> invsFilters = new HashMap<String, InvFilter>();
+	public static Map<String, InvFilter> invsFilters = new HashMap<String, InvFilter>();
 
 	public static void initialize(JavaPlugin instance){
 

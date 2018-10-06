@@ -1,13 +1,13 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package net.kaikk.mc.itemrestrict.bukkit.restrictdata;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 public class RestrictedItem {
-	Material material;
-	Short dv;
-	String label, reason;
+	public Material material;
+	public Short dv;
+	public String label, reason;
 
 	public RestrictedItem(Material material, Short dv) {
 		this.material = material;

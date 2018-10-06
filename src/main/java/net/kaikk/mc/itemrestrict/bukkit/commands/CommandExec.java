@@ -1,5 +1,8 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package net.kaikk.mc.itemrestrict.bukkit.commands;
 
+import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
+import net.kaikk.mc.itemrestrict.bukkit.Config;
+import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -14,12 +17,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 
 public class CommandExec implements CommandExecutor {
-	private BetterItemRestrict instance;
+	public BetterItemRestrict instance;
 
-	CommandExec(BetterItemRestrict instance) {
+	public CommandExec(BetterItemRestrict instance) {
 		this.instance = instance;
 	}
-
 
 	public static boolean getInvName(CommandSender sender){
 
@@ -47,8 +49,9 @@ public class CommandExec implements CommandExecutor {
 					return;
 				}
 
-				sender.sendMessage("Nome do Inventário: " + inventory.getType().name());
-				BetterItemRestrict.instance.getLogger().info("(" + player.getName() + ") Inventory View " + inventory.getType().name());
+				sender.sendMessage("Nome do Inventário: " + inventory.getHolder().toString());
+				sender.sendMessage("Nome do Inventário: " + inventory.getHolder().getClass().getName());
+				BetterItemRestrict.instance.getLogger().info("(" + player.getName() + ") Inventory View " + inventory.getTitle());
 			}
 		}.runTaskLater(BetterItemRestrict.instance,60);
 
