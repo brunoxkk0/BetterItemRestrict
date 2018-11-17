@@ -1,12 +1,12 @@
 # Format: "MaterialName,DamageValue|ItemLabel|Reason" - Note: ",DamageValue" can be omit
-# Format: "MaterialName,DamageValue|ItemLabel|Reason" - Note: ",DamageValue" can be omit
-# Format: "MaterialName,DamageValue|ItemLabel|Reason" - Note: ",DamageValue" can be omit
+
 
 Usage: []
 Ownership: []
 World: []
 InvFilter:
-  appeng.container.implementations.ContainerPatternTerm:
-#  - MaterialName,DamageValue|ItemLabel|Reason
-#  - MaterialName|ItemLabel|Reason
-#  - DIAMOND_SWORD|Diamond Sword|Causes a massive amout of nothing
+  EnderIO_PaintingMachine:
+    inventoryClassPath: 'crazypants.enderio.machine.painter.PainterContainer'
+    BanUsage:
+    - ENDERIO_BLOCKBUFFER|EnderIO Buffer|Esse item duplica itens!
+#   - MaterialName,DamageValue|ItemLabel|Reason                   #- Note: ",DamageValue" can be omit

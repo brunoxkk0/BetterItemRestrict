@@ -28,14 +28,21 @@ public class InventoryListener implements Listener {
         }
         Player player = (Player) event.getWhoClicked();
 
-
         ItemStack itemStack = event.getCurrentItem();
         if (itemStack == null){
             return;
         }
 
-        String invName =  NMSUtilsAccess.getNMSUtils().getOpenInventoryName(player);
-        InvFilter invFilter =  Config.invsFilters.getOrDefault(invName,null);
+        String invTypeClass =  NMSUtilsAccess.getNMSUtils().getOpenInventoryName(player);
+
+        InvFilter invFilter =  null;
+        for (InvFilter anInvFilter : Config.invsFilters){
+            if (invTypeClass.equals(anInvFilter.getInvTypeClass())){
+                invFilter = anInvFilter;
+                break;
+            }
+        }
+
         //If it is not a registered inv, return;
         if (invFilter == null){
             return;
@@ -54,7 +61,8 @@ public class InventoryListener implements Listener {
 
         event.setCancelled(true);
         player.playSound(player.getLocation(), Sound.ANVIL_BREAK, 1F, 1F);
-        player.sendMessage("§cVocê não pode usar esse item nessa interface!");
+        player.sendMessage("   §c[Você não pode usar esse item nessa interface!]");
+        BetterItemRestrict.instance.notify(player,restrictedItem);
         player.closeInventory();
 
         instance.inventoryCheck(player);

@@ -21,14 +21,15 @@ public class Config {
 	public static Multimap<Material, RestrictedItem> usage = HashMultimap.create();
 	public static Multimap<Material,RestrictedItem> ownership = HashMultimap.create();
 	public static Multimap<Material,RestrictedItem> world = HashMultimap.create();
-
-
 	//Inv Filters
-	public static Map<String, InvFilter> invsFilters = new HashMap<String, InvFilter>();
+	public static List<InvFilter> invsFilters = new ArrayList<InvFilter>();
+	public static int bannedItemsOnInvs;
+
 
 	public static void initialize(JavaPlugin instance){
 
 		FileConfiguration config = instance.getConfig();
+		instance.reloadConfig();
 
 		usage.clear();
 		ownership.clear();
@@ -75,119 +76,39 @@ public class Config {
 			}
 		}
 
-		int bannedItemsOnInvs = 0;
-		for(String aInvName : config.getStringList("InvFilter")) {
+		bannedItemsOnInvs = 0;
+		if (BetterItemRestrict.invCheckCanBeDone){
+			if (config.contains("InvFilter")){
+				for(String aInvName : config.getConfigurationSection("InvFilter").getKeys(false)) {
 
-			InvFilter anInvFilter = new InvFilter(aInvName);
-			if (anInvFilter.getIventoryType() == null){
-				BetterItemRestrict.instance.getLogger().info("There is no InvType called \"" + aInvName + "\"... So, it's items will not be loaded on config!" );
-				continue;
-			}
-			invsFilters.put(aInvName,anInvFilter);
+					String invType = config.getString("InvFilter." + aInvName + ".inventoryClassPath");
+					InvFilter anInvFilter = new InvFilter(aInvName,invType);
 
-			for(String bannedItem : config.getStringList("InvFilter." + aInvName + ".Usage")) {
-				try {
-					RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
-					anInvFilter.getUsageBans().put(ri.material, ri);
-					bannedItemsOnInvs++;
-				} catch (IllegalArgumentException e) {
-					instance.getLogger().warning(e.getMessage());
-				} catch (Throwable e) {
-					e.printStackTrace();
+					for(String bannedItem : config.getStringList("InvFilter." + aInvName + ".BanUsage")) {
+						try {
+							RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
+							anInvFilter.banUsage(ri.material, ri);
+							bannedItemsOnInvs++;
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (Throwable e) {
+							e.printStackTrace();
+						}
+					}
+
+					if (anInvFilter.getUsageBans().values().size() == 0){
+						BetterItemRestrict.instance.getLogger().info( aInvName+ " has no BannedItems on it, so, it will not be added! Fix your config! Serach for the errors!");
+					}else {
+						invsFilters.add(anInvFilter);
+					}
 				}
 			}
-
 		}
+
 
 		instance.getLogger().info("Loaded " + usage.size() + " usage, " + ownership.size() + " ownership, and " + world.size() + " world restrictions.");
 		instance.getLogger().info("And " + invsFilters.size() + " invFilters with " + bannedItemsOnInvs + " bannedUsages");
 	}
-
-	private void iresImportMaterials(String importName, Multimap<Material,RestrictedItem> map, List<String> list) {
-		for(String s : list) {
-			try {
-				RestrictedItem ri = RestrictedItem.fromItemRestrict(s);
-				map.put(ri.material, ri);
-			} catch (Throwable e) {
-				BetterItemRestrict.instance.getLogger().warning("Error during ItemRestrict config file import "+importName+": "+s+" - Error: "+e.getMessage());
-			}
-		}
-	}
-
-	private void iresProcessMessages(FileConfiguration iresConfig) {
-		for (String key : iresConfig.getConfigurationSection("Messages.labels").getKeys(false)) {
-			try {
-				String label = iresConfig.getString("Messages.labels."+key);
-				RestrictedItem tempri = RestrictedItem.fromItemRestrict(key);
-				Collection<RestrictedItem> ric = usage.get(tempri.material);
-				if (ric!=null) {
-					for(RestrictedItem ri : ric) {
-						if (ri.equals(tempri)) {
-							ri.label = label;
-						}
-					}
-				}
-
-				ric = ownership.get(tempri.material);
-				if (ric!=null) {
-					for(RestrictedItem ri : ric) {
-						if (ri.equals(tempri)) {
-							ri.label = label;
-						}
-					}
-				}
-
-				ric = world.get(tempri.material);
-				if (ric!=null) {
-					for(RestrictedItem ri : ric) {
-						if (ri.equals(tempri)) {
-							ri.label = label;
-						}
-					}
-				}
-			} catch (Throwable e) {
-				BetterItemRestrict.instance.getLogger().warning("Error during ItemRestrict config file import Messages.labels: "+key+" - Error: "+e.getMessage());
-			}
-		}
-
-		for (String key : iresConfig.getConfigurationSection("Messages.reasons").getKeys(false)) {
-			try {
-				String reason = iresConfig.getString("Messages.reasons."+key);
-				RestrictedItem tempri = RestrictedItem.fromItemRestrict(key);
-				Collection<RestrictedItem> ric = usage.get(tempri.material);
-				if (ric!=null) {
-					for(RestrictedItem ri : ric) {
-						if (ri.equals(tempri)) {
-							ri.reason = reason;
-						}
-					}
-				}
-
-				ric = ownership.get(tempri.material);
-				if (ric!=null) {
-					for(RestrictedItem ri : ric) {
-						if (ri.equals(tempri)) {
-							ri.reason = reason;
-						}
-					}
-				}
-
-				ric = world.get(tempri.material);
-				if (ric!=null) {
-					for(RestrictedItem ri : ric) {
-						if (ri.equals(tempri)) {
-							ri.reason = reason;
-						}
-					}
-				}
-			} catch (Throwable e) {
-				BetterItemRestrict.instance.getLogger().warning("Error during ItemRestrict config file import Messages.reasons: "+key+" - Error: "+e.getMessage());
-			}
-		}
-	}
-
-
-
 
 	public static File copyAsset(JavaPlugin instance, String assetName) {
 		File file = new File(instance.getDataFolder(), assetName);

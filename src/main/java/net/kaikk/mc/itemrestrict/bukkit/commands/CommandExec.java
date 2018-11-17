@@ -61,12 +61,12 @@ public class CommandExec implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equals("betteritemrestrict")) {
 			if (!sender.hasPermission("betteritemrestrict.manage")) {
-				sender.sendMessage(ChatColor.RED+"Permission denied");
+				sender.sendMessage(ChatColor.RED + "Permission denied");
 				return false;
 			}
 
 			if (args.length==0) {
-				sender.sendMessage("Usage: /"+label+" [<reload/addHand/getInvName>] [exact]");
+				sender.sendMessage("Usage: /"+label+" [<reload/addHand/getInvTypeClass>] [exact]");
 				return false;
 			}
 
@@ -75,8 +75,10 @@ public class CommandExec implements CommandExecutor {
 					return getInvName(sender);
 				}
 				case "reload": {
-					Bukkit.getPluginManager().disablePlugin(instance);
-					Bukkit.getPluginManager().enablePlugin(instance);
+					Config.initialize(instance);
+					sender.sendMessage("§aLoaded §e" + Config.usage.size() + "§a usage, §e" + Config.ownership.size() + "§a ownership, and §e" + Config.world.size() + "§a world restrictions.");
+					sender.sendMessage("§aAnd §e" + Config.invsFilters.size() + "§a invFilters with §e" + Config.bannedItemsOnInvs + "§a bannedUsages");
+
 					sender.sendMessage("Plugin reloaded.");
 					break;
 				}

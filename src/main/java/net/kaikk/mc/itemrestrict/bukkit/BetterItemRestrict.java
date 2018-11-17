@@ -28,15 +28,22 @@ public class BetterItemRestrict extends JavaPlugin {
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private Set<ChunkIdentifier> checkedChunks = new HashSet<>();
 
+	public static boolean invCheckCanBeDone = false;
 	@Override
 	public void onEnable() {
 		instance = this;
+
+		if (Bukkit.getPluginManager().isPluginEnabled("ModFixNG")){
+			invCheckCanBeDone = true;
+			getLogger().info("ModFixNG found, loading InvChecks as well");
+		}
+
 
 		Config.initialize(this);
 
 		this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
-		if (Bukkit.getPluginManager().isPluginEnabled("ModFixNG")){
+		if (invCheckCanBeDone){
 			this.getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
 		}
 
