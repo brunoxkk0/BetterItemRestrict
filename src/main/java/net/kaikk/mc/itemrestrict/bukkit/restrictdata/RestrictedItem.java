@@ -8,6 +8,7 @@ public class RestrictedItem {
 	public Material material;
 	public Short dv;
 	public String label, reason;
+	public boolean keepOnInteract;
 
 	public RestrictedItem(Material material, Short dv) {
 		this.material = material;
@@ -19,6 +20,14 @@ public class RestrictedItem {
 		this.dv = dv;
 		this.label = label;
 		this.reason = reason.replace("&","§");
+	}
+
+	public RestrictedItem(Material material, Short dv, String label, String reason, boolean keepOnInteract) {
+		this.material = material;
+		this.dv = dv;
+		this.label = label;
+		this.reason = reason.replace("&","§");
+		this.keepOnInteract = keepOnInteract;
 	}
 
 	@Override
@@ -100,8 +109,13 @@ public class RestrictedItem {
 		if (material==null) {
 			throw new IllegalArgumentException("Invalid material "+sp[0]);
 		}
-		if (sp.length>1) {
+		if (sp.length>1 && !sp[1].equalsIgnoreCase("*")) {
 			dv = Short.valueOf(sp[1]);
+		}
+		if (sp.length>2) {
+			if (sp[2].equalsIgnoreCase("KEEP_ON_INTERACT")){
+				return new RestrictedItem(material, dv, label, reason,true);
+			}
 		}
 
 		return new RestrictedItem(material, dv, label, reason);

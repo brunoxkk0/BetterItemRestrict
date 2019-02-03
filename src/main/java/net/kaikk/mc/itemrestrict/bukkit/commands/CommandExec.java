@@ -1,9 +1,8 @@
 package net.kaikk.mc.itemrestrict.bukkit.commands;
 
 import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.Config;
+import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
 import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -75,9 +74,10 @@ public class CommandExec implements CommandExecutor {
 					return getInvName(sender);
 				}
 				case "reload": {
-					Config.initialize(instance);
-					sender.sendMessage("§aLoaded §e" + Config.usage.size() + "§a usage, §e" + Config.ownership.size() + "§a ownership, and §e" + Config.world.size() + "§a world restrictions.");
-					sender.sendMessage("§aAnd §e" + Config.invsFilters.size() + "§a invFilters with §e" + Config.bannedItemsOnInvs + "§a bannedUsages");
+					BetterItemRestrict.clearCheckedChunks();
+					ConfigManager.initialize(instance);
+					sender.sendMessage("§aLoaded §e" + ConfigManager.usage.size() + "§a usage, §e" + ConfigManager.ownership.size() + "§a ownership, and §e" + ConfigManager.world.size() + "§a world restrictions.");
+					sender.sendMessage("§aAnd §e" + ConfigManager.invsFilters.size() + "§a invFilters with §e" + ConfigManager.bannedItemsOnInvs + "§a bannedUsages");
 
 					sender.sendMessage("Plugin reloaded.");
 					break;
@@ -134,7 +134,7 @@ public class CommandExec implements CommandExecutor {
 
 			StringBuilder sb = new StringBuilder();
 			boolean sw = true;
-			for (RestrictedItem ri : Config.ownership.values()) {
+			for (RestrictedItem ri : ConfigManager.ownership.values()) {
 				if (ri.label != null && !ri.label.isEmpty()) {
 					sb.append(sw ? ChatColor.GREEN : ChatColor.DARK_GREEN);
 					sw = !sw;
@@ -153,7 +153,7 @@ public class CommandExec implements CommandExecutor {
 
 			sb.setLength(0);
 			sw = true;
-			for (RestrictedItem ri : Config.usage.values()) {
+			for (RestrictedItem ri : ConfigManager.usage.values()) {
 				if (ri.label != null && !ri.label.isEmpty()) {
 					sb.append(sw ? ChatColor.GREEN : ChatColor.DARK_GREEN);
 					sw = !sw;

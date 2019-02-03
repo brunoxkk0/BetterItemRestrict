@@ -1,6 +1,7 @@
 package net.kaikk.mc.itemrestrict.bukkit.events;
 
 import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
+import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Event.Result;
@@ -47,7 +48,7 @@ public class EventListener implements Listener {
 			return;
 		}
 
-		if (instance.check((HumanEntity) event.getDamager(), ((HumanEntity) event.getDamager()).getItemInHand())) {
+		if (instance.check((HumanEntity) event.getDamager(), ((HumanEntity) event.getDamager()).getItemInHand()) != null) {
 			event.setCancelled(true);
 			instance.inventoryCheck((HumanEntity) event.getDamager());
 		}
@@ -59,23 +60,28 @@ public class EventListener implements Listener {
 			return;
 		}
 
-		if (instance.check(event.getPlayer(), event.getItem())) {
+		if (instance.check(event.getPlayer(), event.getItem()) != null) {
 			event.setCancelled(true);
 			instance.inventoryCheck(event.getPlayer());
 			return;
 		}
 
+		RestrictedItem restrictedItem = null;
 		if (event.getAction()!=Action.PHYSICAL) {
-			if (instance.check(event.getPlayer(), event.getPlayer().getItemInHand())) {
+			if ((restrictedItem = instance.check(event.getPlayer(), event.getPlayer().getItemInHand())) != null) {
 				event.setCancelled(true);
 				event.setUseInteractedBlock(Result.DENY);
 				event.setUseItemInHand(Result.DENY);
-				event.getPlayer().getItemInHand().setType(Material.AIR);
-			} else if (instance.check(event.getPlayer(), event.getClickedBlock())) {
+				if (!restrictedItem.keepOnInteract){
+					event.getPlayer().getItemInHand().setType(Material.AIR);
+				}
+			} else if ( (restrictedItem = instance.check(event.getPlayer(), event.getClickedBlock())) != null ) {
 				event.setCancelled(true);
 				event.setUseInteractedBlock(Result.DENY);
 				event.setUseItemInHand(Result.DENY);
-				event.getClickedBlock().setType(Material.AIR);
+				if (!restrictedItem.keepOnInteract){
+					event.getClickedBlock().setType(Material.AIR);
+				}
 			}
 		}
 	}
@@ -132,7 +138,7 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerItemHeld(PlayerItemHeldEvent event) {
-		if (instance.check(event.getPlayer(), event.getPlayer().getInventory().getItem(event.getNewSlot()))) {
+		if (instance.check(event.getPlayer(), event.getPlayer().getInventory().getItem(event.getNewSlot())) != null) {
 			instance.inventoryCheck(event.getPlayer());
 		}
 	}

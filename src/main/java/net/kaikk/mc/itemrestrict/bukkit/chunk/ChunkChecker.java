@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.Config;
+import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
 import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -29,13 +29,14 @@ public class ChunkChecker extends Thread {
 			for (int z = 0; z < 16; z++) {
 				for (int y = 0; y < yMax; y++) {
 					final Block block = chunk.getBlock(x, y, z);
-					for (RestrictedItem ri : Config.world.get(block.getType())) {
-						if (ri.isRestricted(block)) {
-							toBeRemoved.add(block);
-							break;
+					if (block.getType() != Material.AIR){ // don't need to check air :/
+						for (RestrictedItem ri : ConfigManager.world.get(block.getType())) {
+							if (ri.isRestricted(block)) {
+								toBeRemoved.add(block);
+								break;
+							}
 						}
 					}
-
 				}
 			}
 		}

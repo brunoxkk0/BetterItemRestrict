@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import net.kaikk.mc.itemrestrict.bukkit.chunk.ChunkChecker;
 import net.kaikk.mc.itemrestrict.bukkit.commands.CommandExec;
+import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
 import net.kaikk.mc.itemrestrict.bukkit.events.EventListener;
 import net.kaikk.mc.itemrestrict.bukkit.events.InventoryListener;
 import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
@@ -28,6 +29,10 @@ public class BetterItemRestrict extends JavaPlugin {
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private Set<ChunkIdentifier> checkedChunks = new HashSet<>();
 
+	public static void clearCheckedChunks(){
+		instance.checkedChunks.clear();
+	}
+
 	public static boolean invCheckCanBeDone = false;
 	@Override
 	public void onEnable() {
@@ -39,7 +44,7 @@ public class BetterItemRestrict extends JavaPlugin {
 		}
 
 
-		Config.initialize(this);
+		ConfigManager.initialize(this);
 
 		this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
@@ -65,12 +70,12 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem restricted(Block block) {
-		for (RestrictedItem ri : Config.ownership.get(block.getType())) {
+		for (RestrictedItem ri : ConfigManager.ownership.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
 		}
-		for (RestrictedItem ri : Config.usage.get(block.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
@@ -80,12 +85,12 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem restricted(ItemStack itemStack) {
-		for (RestrictedItem ri : Config.ownership.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.ownership.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
 		}
-		for (RestrictedItem ri : Config.usage.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -95,7 +100,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem usageRestricted(Block block) {
-		for (RestrictedItem ri : Config.usage.get(block.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
@@ -105,7 +110,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem usageRestricted(ItemStack itemStack) {
-		for (RestrictedItem ri : Config.usage.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -115,7 +120,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem ownershipRestricted(ItemStack itemStack) {
-		for (RestrictedItem ri : Config.ownership.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.ownership.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -125,46 +130,46 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public void checkChunk(Chunk chunk) {
-		if (!Config.world.isEmpty() && this.checkedChunks.add(new ChunkIdentifier(chunk))) {
+		if (!ConfigManager.world.isEmpty() && this.checkedChunks.add(new ChunkIdentifier(chunk))) {
 			this.executor.execute(new ChunkChecker(chunk));
 		}
 	}
 
 
-	public boolean check(HumanEntity player, ItemStack itemStack) {
+	public RestrictedItem check(HumanEntity player, ItemStack itemStack) {
 		if (itemStack == null || itemStack.getType() == Material.AIR) {
-			return false;
+			return null;
 		}
 
 		if (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+itemStack.getType())) {
-			return false;
+			return null;
 		}
 
 		RestrictedItem ri = this.restricted(itemStack);
 		if (ri==null) {
-			return false;
+			return null;
 		}
 
 		this.notify(player, ri);
-		return true;
+		return ri;
 	}
 
-	public boolean check(HumanEntity player, Block block) {
+	public RestrictedItem check(HumanEntity player, Block block) {
 		if (block == null || block.getType() == Material.AIR) {
-			return false;
+			return null;
 		}
 
 		if (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+block.getType())) {
-			return false;
+			return null;
 		}
 
 		RestrictedItem ri = this.restricted(block);
 		if (ri==null) {
-			return false;
+			return null;
 		}
 
 		this.notify(player, ri);
-		return true;
+		return ri;
 	}
 
 	public boolean check(HumanEntity player, Block block, ItemStack itemStack) {

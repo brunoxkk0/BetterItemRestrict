@@ -2,7 +2,7 @@ package net.kaikk.mc.itemrestrict.bukkit.events;
 
 import modfixng.nms.utils.NMSUtilsAccess;
 import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.Config;
+import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
 import net.kaikk.mc.itemrestrict.bukkit.restrictdata.InvFilter;
 import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
 import org.bukkit.Sound;
@@ -36,7 +36,7 @@ public class InventoryListener implements Listener {
         String invTypeClass =  NMSUtilsAccess.getNMSUtils().getOpenInventoryName(player);
 
         InvFilter invFilter =  null;
-        for (InvFilter anInvFilter : Config.invsFilters){
+        for (InvFilter anInvFilter : ConfigManager.invsFilters){
             if (invTypeClass.equals(anInvFilter.getInvTypeClass())){
                 invFilter = anInvFilter;
                 break;
