@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import br.com.finalcraft.evernifecore.version.MCVersion;
 import net.kaikk.mc.itemrestrict.bukkit.chunk.ChunkChecker;
 import net.kaikk.mc.itemrestrict.bukkit.commands.CommandExec;
 import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
@@ -34,9 +35,18 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public static boolean invCheckCanBeDone = false;
+
+	private Sound SOUND_ITEM_BREAK;
+
 	@Override
 	public void onEnable() {
 		instance = this;
+
+		if (MCVersion.isHigherEquals(MCVersion.v1_8_R1)){
+			SOUND_ITEM_BREAK = Sound.ENTITY_ITEM_BREAK;
+		}else {
+			SOUND_ITEM_BREAK = Sound.valueOf("ITEM_BREAK");
+		}
 
 		if (Bukkit.getPluginManager().isPluginEnabled("ModFixNG")){
 			invCheckCanBeDone = true;
@@ -244,7 +254,7 @@ public class BetterItemRestrict extends JavaPlugin {
 			commandSender.sendMessage("   §c§l[§4§l" + restrictedItem.label + "§c§l]");
 			commandSender.sendMessage("   §c§l➸ §c" + restrictedItem.reason);
 			commandSender.sendMessage("");
-			player.getWorld().playSound(player.getLocation(), Sound.ITEM_BREAK, 10, 1);
+			player.getWorld().playSound(player.getLocation(), SOUND_ITEM_BREAK, 10, 1);
 		}
 	}
 

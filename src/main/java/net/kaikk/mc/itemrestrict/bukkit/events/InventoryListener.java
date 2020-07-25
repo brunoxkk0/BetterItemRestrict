@@ -1,6 +1,7 @@
 package net.kaikk.mc.itemrestrict.bukkit.events;
 
-import modfixng.nms.utils.NMSUtilsAccess;
+import br.com.finalcraft.evernifecore.nms.util.NMSUtils;
+import br.com.finalcraft.evernifecore.version.MCVersion;
 import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
 import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
 import net.kaikk.mc.itemrestrict.bukkit.restrictdata.InvFilter;
@@ -16,8 +17,15 @@ import org.bukkit.inventory.ItemStack;
 public class InventoryListener implements Listener {
 	private BetterItemRestrict instance;
 
+	private final Sound SOUND_ANVIL_BREAK;
+
 	public InventoryListener(BetterItemRestrict instance) {
 		this.instance = instance;
+		if (MCVersion.isHigherEquals(MCVersion.v1_8_R1)){
+            SOUND_ANVIL_BREAK = Sound.BLOCK_ANVIL_BREAK;
+        }else {
+		    SOUND_ANVIL_BREAK = Sound.valueOf("ANVIL_BREAK");
+        }
 	}
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -33,7 +41,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        String invTypeClass =  NMSUtilsAccess.getNMSUtils().getOpenInventoryName(player);
+        String invTypeClass =  NMSUtils.get().getOpenInventoryName(player);
 
         InvFilter invFilter =  null;
         for (InvFilter anInvFilter : ConfigManager.invsFilters){
@@ -60,11 +68,10 @@ public class InventoryListener implements Listener {
         }
 
         event.setCancelled(true);
-        player.playSound(player.getLocation(), Sound.ANVIL_BREAK, 1F, 1F);
+        player.playSound(player.getLocation(), SOUND_ANVIL_BREAK, 1F, 1F);
         player.sendMessage("   §c[Você não pode usar esse item nessa interface!]");
         BetterItemRestrict.instance.notify(player,restrictedItem);
         player.closeInventory();
-
         instance.inventoryCheck(player);
     }
 
