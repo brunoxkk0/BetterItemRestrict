@@ -1,17 +1,17 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package br.com.finalcraft.betteritemrestrict;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import br.com.finalcraft.betteritemrestrict.commands.CommandExec;
+import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
+import br.com.finalcraft.betteritemrestrict.events.EventListener;
+import br.com.finalcraft.betteritemrestrict.events.InventoryListener;
 import br.com.finalcraft.evernifecore.version.MCVersion;
-import net.kaikk.mc.itemrestrict.bukkit.chunk.ChunkChecker;
-import net.kaikk.mc.itemrestrict.bukkit.commands.CommandExec;
-import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
-import net.kaikk.mc.itemrestrict.bukkit.events.EventListener;
-import net.kaikk.mc.itemrestrict.bukkit.events.InventoryListener;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
+import br.com.finalcraft.betteritemrestrict.chunk.ChunkChecker;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.kaikk.mc.itemrestrict.bukkit.chunk.ChunkIdentifier;
+import br.com.finalcraft.betteritemrestrict.chunk.ChunkIdentifier;
 
 public class BetterItemRestrict extends JavaPlugin {
 

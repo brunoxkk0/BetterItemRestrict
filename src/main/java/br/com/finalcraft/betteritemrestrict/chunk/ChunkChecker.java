@@ -1,11 +1,11 @@
-package net.kaikk.mc.itemrestrict.bukkit.chunk;
+package br.com.finalcraft.betteritemrestrict.chunk;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
+import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
+import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

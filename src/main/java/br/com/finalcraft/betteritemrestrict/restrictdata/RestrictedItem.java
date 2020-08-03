@@ -1,4 +1,4 @@
-package net.kaikk.mc.itemrestrict.bukkit.restrictdata;
+package br.com.finalcraft.betteritemrestrict.restrictdata;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;

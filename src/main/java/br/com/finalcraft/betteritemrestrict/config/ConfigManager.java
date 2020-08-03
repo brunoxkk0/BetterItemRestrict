@@ -1,4 +1,4 @@
-package net.kaikk.mc.itemrestrict.bukkit.config;
+package br.com.finalcraft.betteritemrestrict.config;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.InvFilter;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
+import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
+import br.com.finalcraft.betteritemrestrict.restrictdata.InvFilter;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,7 +25,6 @@ public class ConfigManager {
 	//Inv Filters
 	public static List<InvFilter> invsFilters = new ArrayList<InvFilter>();
 	public static int bannedItemsOnInvs;
-
 
 	public static void initialize(JavaPlugin instance){
 

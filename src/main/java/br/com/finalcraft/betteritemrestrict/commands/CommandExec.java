@@ -1,8 +1,8 @@
-package net.kaikk.mc.itemrestrict.bukkit.commands;
+package br.com.finalcraft.betteritemrestrict.commands;
 
-import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
+import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
+import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

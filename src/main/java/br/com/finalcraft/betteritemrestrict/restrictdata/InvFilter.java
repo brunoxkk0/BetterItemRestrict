@@ -1,8 +1,6 @@
-package net.kaikk.mc.itemrestrict.bukkit.restrictdata;
+package br.com.finalcraft.betteritemrestrict.restrictdata;
 
-import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
 import org.bukkit.Material;
-import org.bukkit.event.inventory.InventoryType;
 
 import java.util.HashMap;
 import java.util.Map;

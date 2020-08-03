@@ -1,11 +1,11 @@
-package net.kaikk.mc.itemrestrict.bukkit.events;
+package br.com.finalcraft.betteritemrestrict.events;
 
+import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
 import br.com.finalcraft.evernifecore.nms.util.NMSUtils;
 import br.com.finalcraft.evernifecore.version.MCVersion;
-import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.config.ConfigManager;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.InvFilter;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
+import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
+import br.com.finalcraft.betteritemrestrict.restrictdata.InvFilter;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

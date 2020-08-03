@@ -1,9 +1,11 @@
-package net.kaikk.mc.itemrestrict.bukkit.events;
+package br.com.finalcraft.betteritemrestrict.events;
 
-import net.kaikk.mc.itemrestrict.bukkit.BetterItemRestrict;
-import net.kaikk.mc.itemrestrict.bukkit.restrictdata.RestrictedItem;
+import br.com.finalcraft.evernifecore.version.MCVersion;
+import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -20,6 +23,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class EventListener implements Listener {
@@ -27,6 +31,14 @@ public class EventListener implements Listener {
 
 	public EventListener(BetterItemRestrict instance) {
 		this.instance = instance;
+	}
+
+	private ItemStack getPlayersHeldItem(HumanEntity player) {
+		if (MCVersion.isCurrentEqualOrHigher(MCVersion.v1_8_R1)) {
+			return player.getInventory().getItemInMainHand();
+		} else {
+			return player.getItemInHand();
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -48,7 +60,7 @@ public class EventListener implements Listener {
 			return;
 		}
 
-		if (instance.check((HumanEntity) event.getDamager(), ((HumanEntity) event.getDamager()).getItemInHand()) != null) {
+		if (instance.check((HumanEntity) event.getDamager(), getPlayersHeldItem((HumanEntity) event.getDamager())) != null) {
 			event.setCancelled(true);
 			instance.inventoryCheck((HumanEntity) event.getDamager());
 		}
@@ -68,7 +80,7 @@ public class EventListener implements Listener {
 
 		RestrictedItem restrictedItem = null;
 		if (event.getAction()!=Action.PHYSICAL) {
-			if ((restrictedItem = instance.check(event.getPlayer(), event.getPlayer().getItemInHand())) != null) {
+			if ((restrictedItem = instance.check(event.getPlayer(), getPlayersHeldItem(event.getPlayer()))) != null) {
 				event.setCancelled(true);
 				event.setUseInteractedBlock(Result.DENY);
 				event.setUseItemInHand(Result.DENY);
@@ -105,6 +117,18 @@ public class EventListener implements Listener {
 			event.setCancelled(true);
 			event.getItem().remove();
 			instance.inventoryCheck(event.getPlayer());
+		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerPickupItem(EntityPickupItemEvent event) {
+		if (event.getEntity() instanceof Player){
+			Player player = (Player) event.getEntity();
+			if (instance.ownershipCheck(player, event.getItem().getItemStack())) {
+				event.setCancelled(true);
+				event.getItem().remove();
+				instance.inventoryCheck(player);
+			}
 		}
 	}
 
