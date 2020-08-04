@@ -34,11 +34,7 @@ public class EventListener implements Listener {
 	}
 
 	private ItemStack getPlayersHeldItem(HumanEntity player) {
-		if (MCVersion.isCurrentEqualOrHigher(MCVersion.v1_8_R1)) {
-			return player.getInventory().getItemInMainHand();
-		} else {
-			return player.getItemInHand();
-		}
+		return MCVersion.isLegacy() ? player.getItemInHand() : player.getInventory().getItemInMainHand();
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -135,7 +131,6 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerDropItem(final PlayerDropItemEvent event) {
 		if (instance.ownershipCheck(event.getPlayer(), event.getItemDrop().getItemStack())) {
-			instance.inventoryCheck(event.getPlayer());
 			new BukkitRunnable() {
 				@Override
 				public void run() {

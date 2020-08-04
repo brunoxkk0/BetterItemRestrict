@@ -6,11 +6,9 @@ import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
 
-import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
-import br.com.finalcraft.betteritemrestrict.restrictdata.InvFilter;
 import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
+import br.com.finalcraft.evernifecore.version.MCVersion;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,10 +18,10 @@ import com.google.common.collect.Multimap;
 
 public class ConfigManager {
 	public static Multimap<Material, RestrictedItem> usage = HashMultimap.create();
-	public static Multimap<Material,RestrictedItem> ownership = HashMultimap.create();
-	public static Multimap<Material,RestrictedItem> world = HashMultimap.create();
+	public static Multimap<Material, RestrictedItem> ownership = HashMultimap.create();
+	public static Multimap<Material, RestrictedItem> world = HashMultimap.create();
 	//Inv Filters
-	public static List<InvFilter> invsFilters = new ArrayList<InvFilter>();
+	//public static List<InvFilter> invsFilters = new ArrayList<InvFilter>();
 	public static int bannedItemsOnInvs;
 
 	public static void initialize(JavaPlugin instance){
@@ -34,7 +32,7 @@ public class ConfigManager {
 		usage.clear();
 		ownership.clear();
 		world.clear();
-		invsFilters.clear();
+		//invsFilters.clear();
 
 		// load config
 		copyAsset(instance, "config.yml");
@@ -44,6 +42,19 @@ public class ConfigManager {
 			try {
 				RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
 				ownership.put(ri.material, ri);
+				if (!MCVersion.isLegacy()){
+					//On 1.12.2, Blocks and ItemBlocks can have the same Material Name, but not be the same ENUM.
+					//So we need to clone the block's behavior and add it to its BlockItems as well
+					if (ri.material.isBlock()){
+						for (Material material : Material.values()) {
+							if (material.name().equals(ri.material.name()) && material != ri.material){
+								ri = new RestrictedItem(material, ri.dv, ri.label, ri.reason);
+								ownership.put(ri.material, ri);
+								break;
+							}
+						}
+					}
+				}
 			} catch (IllegalArgumentException e) {
 				instance.getLogger().warning(e.getMessage());
 			} catch (Throwable e) {
@@ -56,6 +67,19 @@ public class ConfigManager {
 				RestrictedItem ri = RestrictedItem.deserialize(bannedItem);
 				if (!ownership.get(ri.material).contains(ri)) {
 					usage.put(ri.material, ri);
+					if (!MCVersion.isLegacy()){
+						//On 1.12.2, Blocks and ItemBlocks can have the same Material Name, but no be the same ENUM.
+						//So we need to clone the block's behavior and add it to its BlockItems as well
+						if (ri.material.isBlock()){
+							for (Material material : Material.values()) {
+								if (material.name().equals(ri.material.name()) && material != ri.material){
+									ri = new RestrictedItem(material, ri.dv, ri.label, ri.reason);
+									usage.put(ri.material, ri);
+									break;
+								}
+							}
+						}
+					}
 				}
 			} catch (IllegalArgumentException e) {
 				instance.getLogger().warning(e.getMessage());
@@ -76,6 +100,7 @@ public class ConfigManager {
 			}
 		}
 
+		/*
 		bannedItemsOnInvs = 0;
 		if (BetterItemRestrict.invCheckCanBeDone){
 			if (config.contains("InvFilter")){
@@ -104,10 +129,11 @@ public class ConfigManager {
 				}
 			}
 		}
+		*/
 
 
 		instance.getLogger().info("Loaded " + usage.size() + " usage, " + ownership.size() + " ownership, and " + world.size() + " world restrictions.");
-		instance.getLogger().info("And " + invsFilters.size() + " invFilters with " + bannedItemsOnInvs + " bannedUsages");
+		//instance.getLogger().info("And " + invsFilters.size() + " invFilters with " + bannedItemsOnInvs + " bannedUsages");
 	}
 
 	public static File copyAsset(JavaPlugin instance, String assetName) {

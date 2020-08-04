@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import br.com.finalcraft.betteritemrestrict.commands.CommandExec;
 import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
 import br.com.finalcraft.betteritemrestrict.events.EventListener;
-import br.com.finalcraft.betteritemrestrict.events.InventoryListener;
 import br.com.finalcraft.evernifecore.version.MCVersion;
 import br.com.finalcraft.betteritemrestrict.chunk.ChunkChecker;
 import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
@@ -34,8 +33,6 @@ public class BetterItemRestrict extends JavaPlugin {
 		instance.checkedChunks.clear();
 	}
 
-	public static boolean invCheckCanBeDone = false;
-
 	private Sound SOUND_ITEM_BREAK;
 
 	@Override
@@ -48,19 +45,9 @@ public class BetterItemRestrict extends JavaPlugin {
 			SOUND_ITEM_BREAK = Sound.valueOf("ITEM_BREAK");
 		}
 
-		if (Bukkit.getPluginManager().isPluginEnabled("ModFixNG")){
-			invCheckCanBeDone = true;
-			getLogger().info("ModFixNG found, loading InvChecks as well");
-		}
-
-
 		ConfigManager.initialize(this);
 
 		this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
-
-		if (invCheckCanBeDone){
-			this.getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
-		}
 
 		// commands executor
 		CommandExec ce = new CommandExec(this);

@@ -3,7 +3,10 @@ package br.com.finalcraft.betteritemrestrict.commands;
 import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
 import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
 import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
+import br.com.finalcraft.evernifecore.fcitemstack.FCItemStack;
+import br.com.finalcraft.evernifecore.util.FCBukkitUtil;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -77,7 +80,7 @@ public class CommandExec implements CommandExecutor {
 					BetterItemRestrict.clearCheckedChunks();
 					ConfigManager.initialize(instance);
 					sender.sendMessage("§aLoaded §e" + ConfigManager.usage.size() + "§a usage, §e" + ConfigManager.ownership.size() + "§a ownership, and §e" + ConfigManager.world.size() + "§a world restrictions.");
-					sender.sendMessage("§aAnd §e" + ConfigManager.invsFilters.size() + "§a invFilters with §e" + ConfigManager.bannedItemsOnInvs + "§a bannedUsages");
+					//sender.sendMessage("§aAnd §e" + ConfigManager.invsFilters.size() + "§a invFilters with §e" + ConfigManager.bannedItemsOnInvs + "§a bannedUsages");
 
 					sender.sendMessage("Plugin reloaded.");
 					break;
@@ -91,25 +94,34 @@ public class CommandExec implements CommandExecutor {
 
 					Player player = (Player) sender;
 
-					if (player.getItemInHand() == null){
+					ItemStack itemStack = FCBukkitUtil.getPlayersHeldItem(player);
+
+					if (itemStack == null || itemStack.getType() == Material.AIR){
 						sender.sendMessage("§cVocê precisa estar segurando um item!");
 						return true;
 					}
 
-					ItemStack itemStack = player.getItemInHand();
-
 					String itemBukktiName = itemStack.getType().name();
 					int itemDamage = itemStack.getDurability();
+
+					String itemName = itemBukktiName;
+					try {
+						FCItemStack fcItemStack = new FCItemStack(itemStack);
+						itemName = fcItemStack.getItemLocalizedName();
+						itemName = fcItemStack.getItemLocalizedName();
+					}catch (Exception e){
+						sender.sendMessage("§cFalha a pegar ItemLocalizedName...");
+						e.printStackTrace();
+					}
 
 					String resultString;
 					if (itemDamage > 0 || (args.length > 1 && args[1].equalsIgnoreCase("exact")) ){
 						sender.sendMessage("§a§l(+)§r§2 " + itemBukktiName + ":" + itemDamage);
-						resultString = itemBukktiName + "," + itemDamage + "|" + itemBukktiName + "|" + "Item banido";
+						resultString = itemBukktiName + "," + itemDamage + "|" + itemName + "|" + "Item banido";
 					}else {
-						resultString = itemBukktiName + "|" + itemBukktiName + "|" + "Item banido";
+						resultString = itemBukktiName + "|" + itemName + "|" + "Item banido";
 						sender.sendMessage("§a§l(+)§r§2 " + itemBukktiName);
 					}
-
 
 					List<String> list = instance.getConfig().getStringList("Ownership");
 					if (!list.contains(resultString)){

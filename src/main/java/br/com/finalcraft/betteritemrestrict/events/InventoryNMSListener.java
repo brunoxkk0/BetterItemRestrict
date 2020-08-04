@@ -14,12 +14,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class InventoryListener implements Listener {
+@Deprecated //No need for this anymore, fixing the mod itself with mixin is better!
+public class InventoryNMSListener implements Listener {
 	private BetterItemRestrict instance;
 
 	private final Sound SOUND_ANVIL_BREAK;
 
-	public InventoryListener(BetterItemRestrict instance) {
+	public InventoryNMSListener(BetterItemRestrict instance) {
 		this.instance = instance;
 		if (MCVersion.isHigherEquals(MCVersion.v1_8_R1)){
             SOUND_ANVIL_BREAK = Sound.BLOCK_ANVIL_BREAK;
@@ -44,12 +45,14 @@ public class InventoryListener implements Listener {
         String invTypeClass =  NMSUtils.get().getOpenInventoryName(player);
 
         InvFilter invFilter =  null;
+        /*
         for (InvFilter anInvFilter : ConfigManager.invsFilters){
             if (invTypeClass.equals(anInvFilter.getInvTypeClass())){
                 invFilter = anInvFilter;
                 break;
             }
         }
+         */
 
         //If it is not a registered inv, return;
         if (invFilter == null){

@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated //No need for this anymore, fixing the mod itself with mixin is better!
 public class InvFilter {
 
     private String invName;
