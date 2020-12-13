@@ -1,12 +1,4 @@
 # Format: "MaterialName,DamageValue|ItemLabel|Reason" - Note: ",DamageValue" can be omit
-
-
 Usage: []
 Ownership: []
 World: []
-InvFilter:
-  EnderIO_PaintingMachine:
-    inventoryClassPath: 'crazypants.enderio.machine.painter.PainterContainer'
-    BanUsage:
-    - ENDERIO_BLOCKBUFFER|EnderIO Buffer|Esse item duplica itens!
-#   - MaterialName,DamageValue|ItemLabel|Reason                   #- Note: ",DamageValue" can be omit
