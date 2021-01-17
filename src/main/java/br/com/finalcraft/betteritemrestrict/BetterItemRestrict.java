@@ -1,10 +1,16 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package br.com.finalcraft.betteritemrestrict;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import br.com.finalcraft.betteritemrestrict.commands.CommandExec;
+import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
+import br.com.finalcraft.betteritemrestrict.events.EventListener;
+import br.com.finalcraft.evernifecore.version.MCVersion;
+import br.com.finalcraft.betteritemrestrict.chunk.ChunkChecker;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -14,18 +20,32 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.kaikk.mc.itemrestrict.ChunkIdentifier;
+import br.com.finalcraft.betteritemrestrict.chunk.ChunkIdentifier;
 
 public class BetterItemRestrict extends JavaPlugin {
-	private static BetterItemRestrict instance;
-	private Config config;
+
+	public static BetterItemRestrict instance;
+
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private Set<ChunkIdentifier> checkedChunks = new HashSet<>();
+
+	public static void clearCheckedChunks(){
+		instance.checkedChunks.clear();
+	}
+
+	private Sound SOUND_ITEM_BREAK;
 
 	@Override
 	public void onEnable() {
 		instance = this;
-		config = new Config(this);
+
+		if (MCVersion.isHigherEquals(MCVersion.v1_8_R1)){
+			SOUND_ITEM_BREAK = Sound.ENTITY_ITEM_BREAK;
+		}else {
+			SOUND_ITEM_BREAK = Sound.valueOf("ITEM_BREAK");
+		}
+
+		ConfigManager.initialize(this);
 
 		this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
@@ -46,21 +66,13 @@ public class BetterItemRestrict extends JavaPlugin {
 		}.runTaskTimer(this, 200L, 10L);
 	}
 
-	public Config config() {
-		return config;
-	}
-
-	public static BetterItemRestrict instance() {
-		return instance;
-	}
-
 	public RestrictedItem restricted(Block block) {
-		for (RestrictedItem ri : config.ownership.get(block.getType())) {
+		for (RestrictedItem ri : ConfigManager.ownership.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
 		}
-		for (RestrictedItem ri : config.usage.get(block.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
@@ -70,12 +82,12 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem restricted(ItemStack itemStack) {
-		for (RestrictedItem ri : config.ownership.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.ownership.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
 		}
-		for (RestrictedItem ri : config.usage.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -85,7 +97,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem usageRestricted(Block block) {
-		for (RestrictedItem ri : config.usage.get(block.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(block.getType())) {
 			if (ri.isRestricted(block)) {
 				return ri;
 			}
@@ -95,7 +107,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem usageRestricted(ItemStack itemStack) {
-		for (RestrictedItem ri : config.usage.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.usage.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -105,7 +117,7 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public RestrictedItem ownershipRestricted(ItemStack itemStack) {
-		for (RestrictedItem ri : config.ownership.get(itemStack.getType())) {
+		for (RestrictedItem ri : ConfigManager.ownership.get(itemStack.getType())) {
 			if (ri.isRestricted(itemStack)) {
 				return ri;
 			}
@@ -115,46 +127,46 @@ public class BetterItemRestrict extends JavaPlugin {
 	}
 
 	public void checkChunk(Chunk chunk) {
-		if (!this.config().world.isEmpty() && this.checkedChunks.add(new ChunkIdentifier(chunk))) {
+		if (!ConfigManager.world.isEmpty() && this.checkedChunks.add(new ChunkIdentifier(chunk))) {
 			this.executor.execute(new ChunkChecker(chunk));
 		}
 	}
 
 
-	public boolean check(HumanEntity player, ItemStack itemStack) {
+	public RestrictedItem check(HumanEntity player, ItemStack itemStack) {
 		if (itemStack == null || itemStack.getType() == Material.AIR) {
-			return false;
+			return null;
 		}
 
 		if (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+itemStack.getType())) {
-			return false;
+			return null;
 		}
 
 		RestrictedItem ri = this.restricted(itemStack);
 		if (ri==null) {
-			return false;
+			return null;
 		}
 
 		this.notify(player, ri);
-		return true;
+		return ri;
 	}
 
-	public boolean check(HumanEntity player, Block block) {
+	public RestrictedItem check(HumanEntity player, Block block) {
 		if (block == null || block.getType() == Material.AIR) {
-			return false;
+			return null;
 		}
 
 		if (player.hasPermission("betteritemrestrict.bypass") || player.hasPermission("betteritemrestrict.bypass."+block.getType())) {
-			return false;
+			return null;
 		}
 
 		RestrictedItem ri = this.restricted(block);
 		if (ri==null) {
-			return false;
+			return null;
 		}
 
 		this.notify(player, ri);
-		return true;
+		return ri;
 	}
 
 	public boolean check(HumanEntity player, Block block, ItemStack itemStack) {
@@ -229,7 +241,7 @@ public class BetterItemRestrict extends JavaPlugin {
 			commandSender.sendMessage("   §c§l[§4§l" + restrictedItem.label + "§c§l]");
 			commandSender.sendMessage("   §c§l➸ §c" + restrictedItem.reason);
 			commandSender.sendMessage("");
-			player.getWorld().playSound(player.getLocation(), Sound.ITEM_BREAK, 10, 1);
+			player.getWorld().playSound(player.getLocation(), SOUND_ITEM_BREAK, 10, 1);
 		}
 	}
 

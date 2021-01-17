@@ -1,8 +1,11 @@
-package net.kaikk.mc.itemrestrict.bukkit;
+package br.com.finalcraft.betteritemrestrict.chunk;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.finalcraft.betteritemrestrict.BetterItemRestrict;
+import br.com.finalcraft.betteritemrestrict.config.ConfigManager;
+import br.com.finalcraft.betteritemrestrict.restrictdata.RestrictedItem;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,7 +14,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ChunkChecker extends Thread {
 	final private Chunk chunk;
-	final private BetterItemRestrict instance = BetterItemRestrict.instance();
 	final private int yMax;
 
 	public ChunkChecker(Chunk chunk) {
@@ -27,13 +29,14 @@ public class ChunkChecker extends Thread {
 			for (int z = 0; z < 16; z++) {
 				for (int y = 0; y < yMax; y++) {
 					final Block block = chunk.getBlock(x, y, z);
-					for (RestrictedItem ri : instance.config().world.get(block.getType())) {
-						if (ri.isRestricted(block)) {
-							toBeRemoved.add(block);
-							break;
+					if (block.getType() != Material.AIR){ // don't need to check air :/
+						for (RestrictedItem ri : ConfigManager.world.get(block.getType())) {
+							if (ri.isRestricted(block)) {
+								toBeRemoved.add(block);
+								break;
+							}
 						}
 					}
-
 				}
 			}
 		}
@@ -43,11 +46,11 @@ public class ChunkChecker extends Thread {
 				@Override
 				public void run() {
 					for (Block block : toBeRemoved) {
-						instance.getLogger().info("Removing "+block.getType()+" at "+ BetterItemRestrict.locationToString(block.getLocation()));
+						BetterItemRestrict.instance.getLogger().info("Removing "+block.getType()+" at "+ BetterItemRestrict.locationToString(block.getLocation()));
 						block.setType(Material.AIR);
 					}
 				}
-			}.runTask(instance);
+			}.runTask(BetterItemRestrict.instance);
 		}
 	}
 }

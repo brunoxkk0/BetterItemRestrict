@@ -1,19 +1,17 @@
-name: ${project.artifactId}
-main: ${package}.bukkit.${project.artifactId}
-version: ${project.version}
-author: ${developer}
-loadbefore: [ItemRestrict]
+name: BetterItemRestrict
+main: br.com.finalcraft.betteritemrestrict.BetterItemRestrict
+version: 1.0.2a
+author: EverNife
+softdepend: [EverNifeCore]
 
 commands:
   betteritemrestrict:
-    description: Manage ${project.artifactId}
     aliases: [ires, bir, bires]
   banneditems:
     description: Banned items list
 
 permissions:
   betteritemrestrict.manage:
-    description: Manage ${project.artifactId}
     default: op
   betteritemrestrict.notify:
     description: Notifications about players triggering the restriction

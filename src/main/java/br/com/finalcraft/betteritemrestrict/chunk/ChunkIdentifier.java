@@ -1,4 +1,4 @@
-package net.kaikk.mc.itemrestrict;
+package br.com.finalcraft.betteritemrestrict.chunk;
 
 import java.util.UUID;
 
